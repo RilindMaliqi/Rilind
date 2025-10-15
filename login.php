@@ -3,8 +3,8 @@ require 'config.php';
 session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
 
     $stmt = $conn->prepare("SELECT * FROM users WHERE username=?");
     $stmt->bind_param("s", $username);
@@ -13,11 +13,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($result->num_rows == 1) {
         $user = $result->fetch_assoc();
-        if (password_verify($password, $user['password'])) {
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['name'] = $user['name'];
-            header("Location: home.php");
-            exit();
+        if (hash_equals($user['password'], $password)) {
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['name'] = $user['name'];
+    header("Location: home.php");
+    exit();
         } else {
             echo "<script>alert('Password i pasaktë!');</script>";
         }
